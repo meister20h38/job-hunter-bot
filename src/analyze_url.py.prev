@@ -1,0 +1,124 @@
+
+# src/analyze_url.py (デバッグ強化 & 正規化版)
+import os
+import time
+import re  # 正規表現を追加
+import difflib
+from playwright.sync_api import sync_playwright
+
+AUTH_FILE = "auth.json"
+
+def clean_text(text):
+    """
+    比較のためにテキストをきれいにする
+    （【】の中身や、(再送)などのノイズを消す）
+    """
+    if not text: return ""
+    # 1. 改行と空白を詰める
+    text = text.replace("\n", "").replace(" ", "").replace("　", "")
+    # 2. 【〇〇】のような隅付き括弧を削除
+    text = re.sub(r'【.*?】', '', text)
+    # 3. (再送) などを削除
+    text = re.sub(r'\(.*?\)', '', text)
+    text = re.sub(r'（.*?）', '', text)
+    return text
+
+def fetch_job_text(target_url, target_subject=None):
+    print(f"🚀 ブラウザ起動: {target_url}")
+    
+    # 比較用に件名をきれいにしておく
+    clean_target = clean_text(target_subject) if target_subject else ""
+    if target_subject:
+        print(f"🔎 元の件名: {target_subject[:20]}...")
+        print(f"🧹 比較用　: {clean_target[:20]}...")
+
+    extracted_text = ""
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False) 
+        context = browser.new_context(storage_state=AUTH_FILE)
+        page = context.new_page()
+
+        try:
+            page.goto(target_url)
+            page.wait_for_load_state("domcontentloaded")
+
+            if "messages" in page.url:
+                print("🕵️ メッセージリストから最適なリンクを探索...")
+                
+                links = page.locator(".p-messages-main a").all()
+                
+                best_link = None
+                best_score = 0.0
+                backup_link = None 
+
+                print(f"👀 画面内のリンク数: {len(links)}")
+
+                for i, link in enumerate(links):
+                    href = link.get_attribute("href")
+                    # 画面上の見たままのテキスト
+                    raw_text = link.inner_text()
+                    # 比較用にきれいにする
+                    text = clean_text(raw_text)
+                    
+                    if not href: continue
+                    
+                    # 除外ロジック
+                    if (href in ["/messages", "#", "/"] or 
+                        "agent_scouts" in href or 
+                        "javascript" in href or 
+                        ("job_offers" in href and "student" not in href)):
+                        continue
+
+                    # バックアップ確保
+                    if backup_link is None:
+                        backup_link = link
+
+                    # デバッグ情報を表示（これで何が見えているか分かる！）
+                    if target_subject:
+                        similarity = difflib.SequenceMatcher(None, clean_target, text).ratio()
+                        
+                        # 部分一致ボーナス
+                        if clean_target in text or text in clean_target:
+                            similarity += 0.4
+                        
+                        # 上位候補だけログに出す
+                        if similarity > 0.3:
+                            print(f"   [{i}] 一致度:{similarity:.2f} | {text[:20]}... -> {href}")
+                        
+                        if similarity > best_score:
+                            best_score = similarity
+                            best_link = link
+                
+                target_link = None
+
+                # 判定ロジック
+                if best_link and best_score > 0.4: # 閾値を少し上げる
+                    print(f"✅ ターゲット特定 (スコア:{best_score:.2f})")
+                    target_link = best_link
+                elif backup_link:
+                    print(f"⚠️ 合致する件名なし (最高:{best_score:.2f})。一番上を開きます。")
+                    target_link = backup_link
+                else:
+                    print("❌ 有効なリンクが一つも見つかりませんでした。セレクタが間違っている可能性があります。")
+
+                if target_link:
+                    print(f"🖱️ クリック実行: {target_link.get_attribute('href')}")
+                    target_link.scroll_into_view_if_needed()
+                    target_link.click()
+                    page.wait_for_load_state("domcontentloaded")
+                    page.wait_for_timeout(3000)
+
+            print("📄 テキスト抽出中...")
+            extracted_text = page.locator("body").inner_text()
+
+        except Exception as e:
+            print(f"❌ ブラウザ操作エラー: {e}")
+        finally:
+            browser.close()
+    
+    return extracted_text[:5000]
+
+if __name__ == "__main__":
+    # テスト用
+    fetch_job_text("https://paiza.jp/messages?from=golden_scout", "テスト件名")
