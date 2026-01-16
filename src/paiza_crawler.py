@@ -18,27 +18,27 @@ def run_crawler():
     print("🤖 Paiza Direct Crawler (Final) 起動")
     
     with sync_playwright() as p:
-        # headless=False で動作を目視確認
-        browser = p.chromium.launch(headless=False)
+        # headless=True でブラウザを開かない
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(storage_state=AUTH_FILE)
 
         page_list = context.new_page()   # [タブA] 一覧用
         page_worker = context.new_page() # [タブB] 解析用
 
         try:
-            # ★変更1: リストが確実に読み込まれるURLを指定
+            # リストが確実に読み込まれるURLを指定
             start_url = "https://paiza.jp/messages?from=golden_scout"
             print(f"🚀 [List] {start_url} にアクセス中...")
             page_list.goto(start_url)
             
-            # ★変更2: 正しいリストコンテナを指定
+            # 正しいリストコンテナを指定
             sidebar_selector = ".p-messages-scout-messages"
             try:
                 # まずコンテナが出るのを待つ
                 page_list.wait_for_selector(sidebar_selector, state="visible", timeout=10000)
                 
-                # ★変更3: 「コンテナの中にリンク(aタグ)が表示される」のを明示的に待つ！
-                # これが最大の修正ポイントです。中身が空のうちは先に進ませません。
+                # 「コンテナの中にリンク(aタグ)が表示される」のを明示的に待つ
+                # 中身が空のうちは先に進ませない
                 print("⏳ メッセージリストの描画を待機中...")
                 # コンテナ内のaタグを探すセレクタ
                 list_item_selector = f"{sidebar_selector} a"

@@ -3,11 +3,14 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+config.env
+*.log
 *.db
 *.sqlite3
 credentials.json
 token.json
 user_profile.txt
+archive/*
 
 # Playwrightのブラウザ認証情報
 auth.json
