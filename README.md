@@ -11,12 +11,17 @@
 - [🛠 Tech Stack](#-tech-stack)
 - [🔥 Technical Challenges & Solutions](#-technical-challenges--solutions)
 - [📦 Usage](#-usage)
-- [📊 Evaluation (精度評価)](#-evaluation-精度評価)
 - [📂 Project Structure](#-project-structure)
 
+## 📸 Demo
+
+実際にDiscordに基準以上の求人の通知を受信している様子です。
+AIによるスコアを含む求人の情報がメリット・デメリットと共に表示されています。
+
+![Demo App](./images/demo_discord.png)
+
+
 ## 🏗 Architecture
-
-
 
 ```mermaid
 
