@@ -1,16 +1,17 @@
 # JobHunter-Bot: 省電力・分散型AI就活エージェント
-
-
-
 **「寝ている間に、GPUマシンが就活を終わらせる」**
-
-
-
 就活サイト（Paiza）のスカウトを自動巡回し、ローカルLLMで解析・評価してDiscordに通知する分散型自動化システムです。
-
 **省電力なLinuxサーバー**が指揮官となり、**高スペックなWindowsマシン**をWake-on-LAN (WOL) で必要な時だけ物理的に起動・操作する「グリーンITアーキテクチャ」を採用しています。
 
-
+## Table of Contents
+- [📸 Demo](#-demo)
+- [🏗 Architecture](#-architecture)
+- [🚀 Key Features](#-key-features)
+- [🛠 Tech Stack](#-tech-stack)
+- [🔥 Technical Challenges & Solutions](#-technical-challenges--solutions)
+- [📦 Usage](#-usage)
+- [📊 Evaluation (精度評価)](#-evaluation-精度評価)
+- [📂 Project Structure](#-project-structure)
 
 ## 🏗 Architecture
 
