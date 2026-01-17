@@ -55,8 +55,6 @@ Ubuntu->>WinPC: 🔑 SSH接続 (Script実行命令)
 
 ```
 
-
-
 ## 🚀 Key Features
 
 * **Hybrid OS Orchestration**: Linux (Ubuntu) から Windows 11 をWOLとSSHを用いて完全にリモート制御。
@@ -64,22 +62,20 @@ Ubuntu->>WinPC: 🔑 SSH接続 (Script実行命令)
 * **Robust RPA Crawler**: APIではなくブラウザ操作 (Playwright) を採用し、動的なSPAサイトや複雑なログイン処理に対応。
 * **Privacy First**: 求人票の解析にはローカルLLM (Ollama) を使用。個人の嗜好データや解析内容を外部に送信しません。
 
-
-
 ## 🛠 Tech Stack
 
-* Infrastructure
+* **Infrastructure**
   - **Commander**: Ubuntu Server 22.04 (Cron, Bash, Wake-on-LAN)
   - **Worker**: Windows 11 Pro (OpenSSH Server, Hyper-V Disabled)
   - **Hardware**: Ryzen 5 5950X / RTX 3060 (12GB) / Intel I211 NIC
 
-* Application
+* **Application**
   - **Language**: Python 3.10
   - **Automation**: Playwright (Browser Control)
   - **AI Runtime**: Ollama (Model: `qwen2.5:14b`)
   - **Notification**: Discord Webhook
 
-## 🔥 Technical Challenges \& Solutions
+## 🔥 Technical Challenges & Solutions
 
 ### 1. 外部からの物理マシン電源制御 (Wake-on-LAN)
 
@@ -95,8 +91,6 @@ Ubuntu->>WinPC: 🔑 SSH接続 (Script実行命令)
 
 - **🟢 解決策**: アプローチを根本から変更し、**Playwright** によるブラウザ自動操作 (RPA) を採用。 サイトに直接ログインしてDOMを解析することで、リアルタイムかつ詳細な求人データの取得に成功。SPA特有の描画待ちには `networkidle` 待機ロジックを組み込み安定化させた。
 
-
-
 ### 3. SSH経由でのGUI/Encoding制御
 - **🔴 課題**: SSH経由でPythonスクリプトを実行すると、WindowsのShift-JIS環境とLinuxのUTF-8環境の不整合でエラーが発生したり、GUIブラウザが起動できずに処理が停止した。
 
@@ -110,30 +104,17 @@ Ubuntu->>WinPC: 🔑 SSH接続 (Script実行命令)
 
 ```bash
 # Clone Repository
-
 git clone [https://github.com/meister20h38/job-hunter-bot.git](https://github.com/meister20h38/job-hunter-bot.git)
-
 cd job-hunter-bot
 
-
-
 # Install Dependencies
-
 pip install -r requirements.txt
-
 playwright install
 
-
-
 # Configure Secrets
-
 cp config.env.example config.env
-
 # (Edit config.env with your settings)
-
 ```
-
-
 
 2. Setup Ubuntu (Commander)
 
@@ -141,41 +122,24 @@ cp config.env.example config.env
 
 ```bash
 # Edit & Permission
-
 chmod +x scripts/daily_mission.sh
 
-
-
 # Setup Cron (Run at 9:00 AM)
-
 crontab -e
-
 # 0 9 * * * /path/to/job-hunter-bot/scripts/daily_mission.sh >> /path/to/mission.log 2>\&1
-
 ```
 
 ## 📂 Project Structure
 
 ```text
-
 job-hunter-bot/
-
 ├── scripts/
-
 │   └── daily_mission.sh   # Ubuntu用 指揮官スクリプト
-
 ├── src/
-
 │   ├── main.py            # エントリーポイント
-
 │   ├── paiza_crawler.py   # Playwright クローラー
-
 │   ├── ai_client.py       # Ollama AI ロジック
-
 │   └── ...
-
 ├── config.env.example     # 設定ファイルひな形
-
 └── requirements.txt
 ```
-
