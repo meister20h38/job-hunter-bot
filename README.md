@@ -4,6 +4,13 @@
 就活サイト（Paiza）のスカウトを自動巡回し、ローカルLLMで解析・評価してDiscordに通知する分散型自動化システムです。
 **省電力なLinuxサーバー**が指揮官となり、**高スペックなWindowsマシン**をWake-on-LAN (WOL) で必要な時だけ物理的に起動・操作する「グリーンITアーキテクチャ」を採用しています。
 
+![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)
+![Playwright](https://img.shields.io/badge/Crawler-Playwright-45ba4b?logo=playwright&logoColor=white)
+![Ollama](https://img.shields.io/badge/LLM-Ollama-000000?logo=ollama&logoColor=white)
+![Ubuntu](https://img.shields.io/badge/Commander-Ubuntu_22.04-E95420?logo=ubuntu&logoColor=white)
+![Windows](https://img.shields.io/badge/Worker-Windows_11-0078D6?logo=windows11&logoColor=white)
+![Discord](https://img.shields.io/badge/Notify-Discord-5865F2?logo=discord&logoColor=white)
+
 ## Table of Contents
 - [📸 Demo](#-demo)
 - [🏗 Architecture](#-architecture)
