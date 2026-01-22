@@ -9,13 +9,14 @@ load_dotenv()
 # .envからURLを取得（なければローカルのデフォルト値）
 OLLAMA_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
 # 使用するモデル名（Ollamaに入っているものを指定）
-MODEL_NAME = "qwen2.5:14b" 
+MODEL_NAME = "qwen2.5:14b"
+
 
 def analyze_job_description(job_text, user_profile):
     """
     求人テキストとプロフィールを受け取り、AIの判定結果を返す
     """
-    
+
     # AIへの指示書（プロンプト）
     prompt = f"""
     あなたは優秀なキャリアアドバイザーです。
@@ -42,17 +43,17 @@ def analyze_job_description(job_text, user_profile):
         "model": MODEL_NAME,
         "prompt": prompt,
         "stream": False,
-        "format": "json" # JSONモードを強制（モデルが対応している場合）
+        "format": "json",  # JSONモードを強制（モデルが対応している場合）
     }
 
     try:
         print(f"🤖 AI({MODEL_NAME})に問い合わせ中...")
         response = requests.post(OLLAMA_URL, json=payload, timeout=60)
         response.raise_for_status()
-        
+
         result_json = response.json()
         ai_response_text = result_json.get("response", "")
-        
+
         # JSON文字列をPython辞書に変換して返す
         return json.loads(ai_response_text)
 

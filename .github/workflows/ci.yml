@@ -1,0 +1,56 @@
+name: CI (Lint & Type Check)
+
+# トリガー: mainブランチへのpush または Pull Request
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      # 1. リポジトリのコードをチェックアウト
+      - uses: actions/checkout@v4
+
+      # 2. Python環境のセットアップ
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # 3. 依存ライブラリのインストール
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black mypy
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # ※Playwrightのブラウザ本体はLintには不要なのでインストールしません
+
+      # 4. Blackによるフォーマットチェック
+      # コードがPEP8準拠で整形されているか確認します（修正はしません）
+      - name: Check formatting with Black
+        run: |
+          black . --check
+
+      # 5. Flake8による構文チェック
+      # 未使用の変数や、長すぎる行などをチェックします
+      # E501 (行の長さ) はBlackと競合することがあるので無視設定を入れています
+      - name: Lint with Flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # 6. Mypyによる型チェック (Optional)
+      # 型ヒントが正しく書かれているかチェックします
+      # まだ型をしっかり書いていない場合はエラーが多く出るので、一旦コメントアウトしてもOKです
+      - name: Type check with Mypy
+        run: |
+          mypy src/ --ignore-missing-imports
