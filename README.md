@@ -126,7 +126,6 @@ cp config.env.example config.env
 ```
 
 2. Setup Ubuntu (Commander)
-
 `scripts/daily_mission.sh` を配置し、Cronに登録します。
 
 ```bash
